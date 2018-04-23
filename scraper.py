@@ -4,13 +4,14 @@ import logging as log
 import os
 
 USE_TEST_PAGE = os.getenv("FUGNOLI_BOT_USE_TEST_PAGE", "True") == "True"
-page_name = os.getenv("FUGNOLI_BOT_NL_PAGE", "foo")
+PAGE_NAME = os.environ.get("FUGNOLI_BOT_NL_PAGE")
+TEST_PAGE_PATH = os.environ.get("FUGNOLI_BOT_NL_TEST_PAGE_PATH")
 
 
 def scrape_nl():
     html = get_page()
     soup = BeautifulSoup(html, 'html.parser')
-    elements = soup.find_all('div', class_='rassegna-stampa-element', limit=5)
+    elements = soup.find_all('div', class_='rassegna-stampa-element')
     log.info("Found %d elements" % len(elements))
     nls = []
     for element in elements:
@@ -26,11 +27,12 @@ def scrape_nl():
 
 def get_page():
     if USE_TEST_PAGE:
-        with open('test/nl_kairos.html') as f:
+        with open(TEST_PAGE_PATH) as f:
             return f.read()
     else:
+        log.info("Requesting URL: %s" % PAGE_NAME)
         req = urllib.request.Request(
-            page_name,
+            PAGE_NAME,
             data=None,
             headers={
                 'User-Agent': '''Mozilla/5.0 (X11; Linux x86_64; rv:57.0)

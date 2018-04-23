@@ -1,7 +1,6 @@
-from dateutil import parser
-from datetime import now
 import telegramclient as tc
 import updates_dispatcher as ud
+import newsletter_service as nls
 import logging as log
 import schedule
 import scraper
@@ -35,21 +34,14 @@ def fetch_updates():
 
 
 def fetch_nl():
-    nls = scraper.scrape_nl()
-    last_nl = max(nls, key=lambda nl: parser.parse(nl['added_on']))
-    added_on = parser.parse(last_nl['added_on']).date()
-    today = now().date()
-    if added_on == today:
-        pass
-    else:
-        pass
+    newsletters = scraper.scrape_nl()
+    nls.check_and_notify(newsletters)
 
 
 if __name__ == '__main__':
     configure_logger()
-    fetch_nl()
-    # schedule.every(10).seconds.do(fetch_updates)
-    # schedule.every(10).seconds.do(fetch_nl)
-    # while True:
-    #    schedule.run_pending()
-    #    time.sleep(1)
+    schedule.every(10).seconds.do(fetch_updates)
+    schedule.every(10).seconds.do(fetch_nl)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)

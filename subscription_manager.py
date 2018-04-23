@@ -1,4 +1,6 @@
 from pymongo import MongoClient
+
+import logging as log
 import time
 
 client = MongoClient()
@@ -23,8 +25,31 @@ def insert_subscription(user_id, payload={}):
         'user_id': user_id,
         'active': True,
         'created_on': int(time.time()),
-        'payload': payload
+        'payload': payload,
+        'last_nl_notified': None
     })
+
+
+def update_last_nl_notified(user_id, date):
+    try:
+        result = db['subscription'].update_one(
+            {
+                'user_id': user_id,
+                'active': True
+            },
+            {
+                '$set': {
+                    'last_nl_notified': date
+                }
+            }
+        )
+        return result.modified_count == 1
+    except Exception as e:
+        log.error(
+            "Exception while updating last_nl_notified",
+            e
+        )
+        return False
 
 
 def deactivate_subscription(user_id):
