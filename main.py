@@ -1,6 +1,4 @@
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.schedulers.base import BaseScheduler
-
+from apscheduler.schedulers.background import BlockingScheduler
 import telegramclient as tc
 import updates_dispatcher as ud
 import newsletter_service as nls
@@ -24,7 +22,6 @@ def configure_logger():
     rootLogger.setLevel("DEBUG")
 
 
-@BaseScheduler.scheduled_job('cron', minute='*/10')
 def fetch_updates():
     updates = tc.get_updates()
     log.info("Fetching updates...")
@@ -35,17 +32,25 @@ def fetch_updates():
         tc.set_offset(id + 1)
 
 
-@BaseScheduler.scheduled_job('cron',
-                             day_of_week='4-5',
-                             hour='7-19',
-                             minute=0,
-                             second=0)
 def fetch_nl():
+    log.info("Fetching newsletters...")
     newsletters = scraper.scrape_nl()
     nls.check_and_notify(newsletters)
 
 
 if __name__ == '__main__':
     configure_logger()
-    scheduler = BackgroundScheduler()
+    scheduler = BlockingScheduler()
+    scheduler.add_job(
+        fetch_updates,
+        trigger='cron',
+        second='*/30'
+    )
+    scheduler.add_job(
+        fetch_nl,
+        trigger='cron',
+        day_of_week='4-5',  # Thu-Fri (4-5)
+        hour='7-19',        # 07:00 - 19:00
+        minute='*/10'
+    )
     scheduler.start()
