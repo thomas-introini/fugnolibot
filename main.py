@@ -45,6 +45,7 @@ def fetch_nl():
 
 
 def get_cron_trigger(expr):
+    log.info("Creating crono trigger with %s" % expr)
     values = expr.split()
     if len(values) < 7:
         raise ValueError(
