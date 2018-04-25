@@ -9,7 +9,7 @@ import scraper
 import os
 
 UPDATES_CRON = os.getenv('FUGNOLI_BOT_UPDATES_CRON', "*/15 * * * * * *")
-NL_FETCH_CRON = os.getenv('FUNGOLI_BOT_NL_FETCH_CRON', "0 */10 7-19 * * 4-5 *")
+NL_FETCH_CRON = os.getenv('FUNGOLI_BOT_NL_FETCH_CRON', "0 0/10 7-19 * * thu-fri *")
 
 LOG_FORMATTER = log.Formatter("%(asctime)s [%(levelname)-5.5s] %(message)s")
 
@@ -64,15 +64,21 @@ def get_cron_trigger(expr):
     )
 
 
+def get_cron_triggers(exprs):
+    return [get_cron_trigger(e) for e in exprs.split(';')]
+
+
 if __name__ == '__main__':
     configure_logger()
     scheduler = BlockingScheduler()
-    scheduler.add_job(
-        fetch_updates,
-        get_cron_trigger(UPDATES_CRON)
-    )
-    scheduler.add_job(
-        fetch_nl,
-        get_cron_trigger(NL_FETCH_CRON)
-    )
+    for ct in get_cron_triggers(UPDATES_CRON):
+        scheduler.add_job(
+            fetch_updates,
+            ct
+        )
+    for ct in get_cron_triggers(NL_FETCH_CRON):
+        scheduler.add_job(
+            fetch_nl,
+            ct
+        )
     scheduler.start()
