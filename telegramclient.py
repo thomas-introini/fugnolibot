@@ -34,9 +34,9 @@ def get_updates():
             )
 
 
-def send_simple_message(user_id, message):
+def send_simple_message(chat_id, message):
     body = {
-        'chat_id': user_id,
+        'chat_id': chat_id,
         'text': message,
         'parse_mode': 'Markdown'
     }

@@ -8,8 +8,14 @@ import logging as log
 import scraper
 import os
 
-UPDATES_CRON = os.getenv('FUGNOLI_BOT_UPDATES_CRON', "*/15 * * * * * *")
-NL_FETCH_CRON = os.getenv('FUNGOLI_BOT_NL_FETCH_CRON', "0 0/10 7-19 * * thu-fri *")
+UPDATES_CRON = os.getenv(
+    'FUGNOLI_BOT_UPDATES_CRON',
+    "*/15 * * * * * *"
+)
+NL_FETCH_CRON = os.getenv(
+    'FUNGOLI_BOT_NL_FETCH_CRON',
+    "0 0/10 7-19 * * thu-fri *"
+)
 
 LOG_FORMATTER = log.Formatter("%(asctime)s [%(levelname)-5.5s] %(message)s")
 
@@ -40,6 +46,8 @@ def fetch_updates():
 
 def fetch_nl():
     log.info("Fetching newsletters...")
+    # Fetch last nl
+    # If None or week nr != today week nr, fetch nl
     newsletters = scraper.scrape_nl()
     nls.check_and_notify(newsletters)
 

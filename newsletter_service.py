@@ -18,6 +18,7 @@ def check_and_notify(nls):
         else:
             for sub in subs:
                 user_id = sub['user_id']
+                chat_type = sub['chat_type']
                 last_nl_notified = parse_last_nl_notified(sub)
                 if last_nl_notified and added_on == last_nl_notified:
                     log.info("Sub was already notified, skipping")
@@ -30,6 +31,7 @@ def check_and_notify(nls):
                         )
                     )
                     sm.update_last_nl_notified(
+                        chat_type,
                         user_id,
                         str(today)
                     )
