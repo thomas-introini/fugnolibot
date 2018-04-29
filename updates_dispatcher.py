@@ -1,5 +1,7 @@
 import logging as log
 import telegramclient as tc
+import newsletter_manager as nlm
+import newsletter_service as nls
 import subscription_manager as sm
 
 
@@ -83,6 +85,19 @@ def process_unsubscribe(update_id, message, args):
     tc.send_simple_message(user_id, message)
 
 
+def process_last(update_id, message, args):
+    log.info("process last")
+    user_id, chat_type = get_subscriber_info(message)
+    last_nl = nlm.get_last_newsletter()
+    if last_nl is None:
+        tc.send_simple_message(
+            user_id,
+            "Putroppo tigre non sono riuscito a trovare l'ultimo numero del Rosso e Il Nero"
+        )
+    else:
+        nls.send_newsletter_message(last_nl, user_id)
+
+
 def get_subscriber_info(message):
     chat_type = message['chat']['type']
     user_id = message['from']['id'] if chat_type == 'private' else message['chat']['id']
@@ -92,5 +107,6 @@ def get_subscriber_info(message):
 command_types = {
     '/start': process_start,
     '/subscribe': process_subscribe,
-    '/unsubscribe': process_unsubscribe
+    '/unsubscribe': process_unsubscribe,
+    '/last': process_last
 }

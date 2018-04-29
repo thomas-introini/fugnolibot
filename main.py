@@ -1,9 +1,12 @@
 from apscheduler.schedulers.background import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
+from dateutil import parser
+from datetime import datetime
 
 import telegramclient as tc
 import updates_dispatcher as ud
 import newsletter_service as nls
+import newsletter_manager as nlm
 import logging as log
 import scraper
 import os
@@ -46,8 +49,19 @@ def fetch_updates():
 
 def fetch_nl():
     log.info("Fetching newsletters...")
-    # Fetch last nl
-    # If None or week nr != today week nr, fetch nl
+    last_nl = nlm.get_last_newsletter()
+    if last_nl is not None:
+        now = datetime.now()
+        dt = parser.parse(last_nl['date']).date()
+        week_number = dt.isocalendar()[1]
+        now_week_number = now.isocalendar()[1]
+        if week_number != now_week_number:
+            scrape_and_notify()
+    else:
+        scrape_and_notify()
+
+
+def scrape_and_notify():
     newsletters = scraper.scrape_nl()
     nls.check_and_notify(newsletters)
 

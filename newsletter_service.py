@@ -1,4 +1,5 @@
 import subscription_manager as sm
+import newsletter_manager as nlm
 import telegramclient as tc
 import logging as log
 
@@ -12,6 +13,11 @@ def check_and_notify(nls):
     today = datetime.now().date()
     if added_on == today:
         log.info("Newsletter added today!")
+        nlm.insert_newsletter(
+            last_nl['added_on'],
+            last_nl['title'],
+            last_nl['link']
+        )
         subs = sm.get_active_subscriptions()
         if not subs:
             log.info("No active subscription found!")
@@ -23,13 +29,7 @@ def check_and_notify(nls):
                 if last_nl_notified and added_on == last_nl_notified:
                     log.info("Sub was already notified, skipping")
                 else:
-                    tc.send_simple_message(
-                        user_id,
-                        "[%s](%s)" % (
-                            last_nl['title'],
-                            last_nl['link']
-                        )
-                    )
+                    send_newsletter_message(last_nl, user_id)
                     sm.update_last_nl_notified(
                         chat_type,
                         user_id,
@@ -37,6 +37,16 @@ def check_and_notify(nls):
                     )
     else:
         log.info("Last nl was released on %s, skipping" % added_on)
+
+
+def send_newsletter_message(nl, user_id):
+    tc.send_simple_message(
+        user_id,
+        "[%s](%s)" % (
+            nl['title'],
+            nl['link']
+        )
+    )
 
 
 def parse_last_nl_notified(sub):
