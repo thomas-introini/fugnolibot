@@ -10,7 +10,7 @@ def get_newsletters():
 
 
 def get_last_newsletter():
-    return db['newsletters'].find().sort({'ts': -1}).limit(1)
+    return db['newsletters'].find().sort('ts', -1).limit(1)
 
 
 def insert_newsletter(date, title, link):
