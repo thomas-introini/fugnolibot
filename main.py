@@ -16,7 +16,7 @@ UPDATES_CRON = os.getenv(
     "*/15 * * * * * *"
 )
 NL_FETCH_CRON = os.getenv(
-    'FUNGOLI_BOT_NL_FETCH_CRON',
+    'FUGNOLI_BOT_NL_FETCH_CRON',
     "0 0/10 7-19 * * thu-fri *"
 )
 
@@ -57,6 +57,8 @@ def fetch_nl():
         now_week_number = now.isocalendar()[1]
         if week_number != now_week_number:
             scrape_and_notify()
+        else:
+            log.info("Newsletter already found this week, skipping")
     else:
         scrape_and_notify()
 
