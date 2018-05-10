@@ -55,11 +55,13 @@ def fetch_nl():
         dt = parser.parse(last_nl['date']).date()
         week_number = dt.isocalendar()[1]
         now_week_number = now.isocalendar()[1]
+        log.info("Last nl week: %d, current week: %d" % (week_number, now_week_number))
         if week_number != now_week_number:
             scrape_and_notify()
         else:
             log.info("Newsletter already found this week, skipping")
     else:
+        log.info("No last nl was found, scraping...")
         scrape_and_notify()
 
 
